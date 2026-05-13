@@ -1,0 +1,10 @@
+<resources>
+    <string name="app_name">Celebrations App</string>
+    <string name="title_tributes">Tributos</string>
+    <string name="no_tributes">Nenhum tributo encontrado.</string>
+    <string name="new_tribute_notification_title">Novo Tributo!</string>
+    <string name="new_tribute_notification_body">Um novo tributo foi baixado e está pronto para ser visto.</string>
+    <string name="admin_title">Área do Administrador</string>
+    <string name="tribute_title_hint">Título do Tributo</string>
+    <string name="add_tribute">Adicionar Tributo</string>
+</resources>
