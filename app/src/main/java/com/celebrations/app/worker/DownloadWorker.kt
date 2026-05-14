@@ -12,20 +12,24 @@ import androidx.work.WorkerParameters
 import com.celebrations.app.R
 import com.celebrations.app.data.AppDatabase
 import com.celebrations.app.data.TributeRepository
-import com.google.firebase.storage.FirebaseStorage
-import kotlinx.coroutines.tasks.await
+import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.withContext
+import okhttp3.OkHttpClient
+import okhttp3.Request
 import java.io.File
+import java.io.FileOutputStream
 
 class DownloadWorker(
     private val context: Context,
     workerParams: WorkerParameters
 ) : CoroutineWorker(context, workerParams) {
 
+    private val client = OkHttpClient()
+
     override suspend fun doWork(): Result {
         val database = AppDatabase.getDatabase(context)
         val repository = TributeRepository(database.tributeDao())
 
-        // Sync metadata first to find new tributes
         repository.refreshTributes()
 
         val pending = repository.getPendingDownloads()
@@ -34,17 +38,32 @@ class DownloadWorker(
         var downloadedAny = false
         for (tribute in pending) {
             try {
-                val storageRef = FirebaseStorage.getInstance().getReferenceFromUrl(tribute.fileUrl)
-                val localFile = File(context.getExternalFilesDir(null), "${tribute.id}_${storageRef.name}")
+                if (tribute.fileUrl.isEmpty()) continue
 
-                storageRef.getFile(localFile).await()
+                val request = Request.Builder().url(tribute.fileUrl).build()
+                val fileName = tribute.fileUrl.substringAfterLast("/")
+                val localFile = File(context.getExternalFilesDir(null), "${tribute.id}_$fileName")
 
-                val updatedTribute = tribute.copy(
-                    localPath = localFile.absolutePath,
-                    isDownloaded = true
-                )
-                repository.updateTribute(updatedTribute)
-                downloadedAny = true
+                withContext(Dispatchers.IO) {
+                    client.newCall(request).execute().use { response ->
+                        if (!response.isSuccessful) return@use
+
+                        response.body?.let { body ->
+                            FileOutputStream(localFile).use { output ->
+                                body.byteStream().copyTo(output)
+                            }
+                        }
+                    }
+                }
+
+                if (localFile.exists() && localFile.length() > 0) {
+                    val updatedTribute = tribute.copy(
+                        localPath = localFile.absolutePath,
+                        isDownloaded = true
+                    )
+                    repository.updateTribute(updatedTribute)
+                    downloadedAny = true
+                }
             } catch (e: Exception) {
                 e.printStackTrace()
             }

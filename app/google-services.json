@@ -1,13 +1,13 @@
 {
   "project_info": {
-    "project_number": "750456828406",
-    "project_id": "celebrationsapp-1bc92",
-    "storage_bucket": "celebrationsapp-1bc92.firebasestorage.app"
+    "project_number": "000000000000",
+    "project_id": "celebrations-app-placeholder",
+    "storage_bucket": "celebrations-app-placeholder.appspot.com"
   },
   "client": [
     {
       "client_info": {
-        "mobilesdk_app_id": "1:750456828406:android:7c1a6ae0d198ae6d20d7d7",
+        "mobilesdk_app_id": "1:000000000000:android:0000000000000000000000",
         "android_client_info": {
           "package_name": "com.celebrations.app"
         }
@@ -15,7 +15,7 @@
       "oauth_client": [],
       "api_key": [
         {
-          "current_key": "AIzaSyBu8uIllmERo4zDyUMuGt889rZQaV6lYWw"
+          "current_key": "PLACEHOLDER_API_KEY"
         }
       ],
       "services": {
